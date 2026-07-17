@@ -85,34 +85,61 @@ async function importPdf(file){
 $("chooseFile").addEventListener("click",()=>$("pdfFile").click());$("pdfFile").addEventListener("change",e=>importPdf(e.target.files[0]));
 const zone=$("dropZone");["dragenter","dragover"].forEach(ev=>zone.addEventListener(ev,e=>{e.preventDefault();zone.classList.add("dragging")}));["dragleave","drop"].forEach(ev=>zone.addEventListener(ev,e=>{e.preventDefault();zone.classList.remove("dragging")}));zone.addEventListener("drop",e=>importPdf(e.dataTransfer.files[0]));
 
-const clauses=[
- ["CLÁUSULA 1ª - DO OBJETO E DA FINALIDADE DO CONVÊNIO","O presente Termo de Convênio tem por objeto viabilizar o desenvolvimento de atividades de estágio supervisionado curricular, projetos de iniciação científica, projetos de pesquisa e trabalhos de conclusão de curso pelos alunos regularmente matriculados nos cursos de graduação na modalidade de Ensino a Distância da UNINGÁ, proporcionando experiência prática para a formação do estagiário e o aperfeiçoamento técnico-profissional, em situações reais de aprendizagem profissional."],
- ["CLÁUSULA 2ª - DAS COMPETÊNCIAS DA UNINGÁ","Compete à UNINGÁ organizar os acadêmicos para realização da prática de estágio; identificar o docente Supervisor de Estágio e os acadêmicos; elaborar, em comum acordo com a CONCEDENTE, o Plano de Atividades; reunir-se quando necessário; apresentar sugestões para melhoria do estágio; e contratar seguro de acidentes pessoais em favor dos estudantes, na forma da Lei nº 11.788/2008."],
- ["CLÁUSULA 3ª - DAS COMPETÊNCIAS DA CONCEDENTE","Compete à CONCEDENTE permitir o acesso do professor Supervisor de Estágio; inteirar-se da organização do Plano de Estágio; designar profissional habilitado para a Supervisão de Campo; oferecer condições físicas e materiais; orientar adequadamente o supervisor; e comunicar qualquer irregularidade à UNINGÁ."],
- ["CLÁUSULA 4ª - DAS ÁREAS DE ESTÁGIO E DO NÚMERO DE VAGAS","A CONCEDENTE disponibilizará instalações para recebimento de estagiários nas áreas afins do Curso. O número de acadêmicos será definido em conjunto, observado o limite máximo de seis estagiários."],
- ["CLÁUSULA 5ª - DO TERMO DE COMPROMISSO DO ESTAGIÁRIO","A aceitação do estagiário não configurará vínculo empregatício. A vinculação será celebrada por Termo de Compromisso entre as partes, com a interveniência da UNINGÁ."],
- ["CLÁUSULA 6ª - DA CARGA HORÁRIA, DURAÇÃO E JORNADA","A carga horária, duração e jornada serão determinadas pelo Coordenador do Curso, conforme o Projeto Pedagógico, as Diretrizes Curriculares Nacionais, o Regimento Geral de Estágio Curricular EAD e o Calendário Acadêmico da UNINGÁ."],
- ["CLÁUSULA 7ª - DA EXCLUSÃO DE RESPONSABILIDADES","A UNINGÁ fornecerá cobertura de seguro de acidentes pessoais em favor do estagiário, nos termos da legislação vigente."],
- ["CLÁUSULA 8ª - DA VIGÊNCIA","O presente termo terá vigência por tempo indeterminado. A parte interessada em sua rescisão notificará a outra, por escrito, com antecedência de trinta dias."],
- ["CLÁUSULA 9ª - DA RESCISÃO","O termo poderá ser denunciado por qualquer das partes e rescindido a qualquer tempo mediante comunicação com antecedência mínima de trinta dias, sem ônus, preservadas as atividades em andamento até sua conclusão."],
- ["CLÁUSULA 10ª - DA ASSINATURA ELETRÔNICA E/OU DIGITAL","As partes concordam com a utilização de assinatura digital ou eletrônica, nos termos da Lei nº 14.063/2020 e da Medida Provisória nº 2.200-2/2001."],
- ["CLÁUSULA 11ª - DA PROTEÇÃO DE DADOS","Os dados pessoais serão armazenados e tratados exclusivamente para os fins deste convênio, em conformidade com a Lei nº 13.709/2018, durante sua vigência."],
- ["CLÁUSULA 12ª - DO FORO","Fica eleito o foro da Comarca de Maringá, Estado do Paraná, para dirimir litígios oriundos deste termo que não puderem ser resolvidos amigavelmente."],
-];
 function formatDate(iso){return new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(`${iso}T00:00:00Z`))}
-function generate(){
+function wrapLines(text,font,size,maxWidth){
+  const words=text.trim().split(/\s+/),lines=[];let line="";
+  for(const word of words){const candidate=line?`${line} ${word}`:word;if(font.widthOfTextAtSize(candidate,size)<=maxWidth)line=candidate;else{if(line)lines.push(line);line=word}}
+  if(line)lines.push(line);return lines;
+}
+function drawJustified(page,text,{x,y,width,font,size,lineHeight,maxLines}){
+  let fittedSize=size,lines=wrapLines(text,font,fittedSize,width);
+  while(lines.length>maxLines&&fittedSize>8.4){fittedSize-=.2;lines=wrapLines(text,font,fittedSize,width)}
+  lines.forEach((line,index)=>{
+    const words=line.split(" "),last=index===lines.length-1;
+    if(last||words.length===1){page.drawText(line,{x,y:y-index*lineHeight,size:fittedSize,font,color:PDFLib.rgb(0,0,0)});return}
+    const wordsWidth=words.reduce((sum,word)=>sum+font.widthOfTextAtSize(word,fittedSize),0),gap=(width-wordsWidth)/(words.length-1);let cursor=x;
+    words.forEach(word=>{page.drawText(word,{x:cursor,y:y-index*lineHeight,size:fittedSize,font,color:PDFLib.rgb(0,0,0)});cursor+=font.widthOfTextAtSize(word,fittedSize)+gap});
+  });
+  return lines.length;
+}
+function drawCenteredWrapped(page,text,{centerX,y,width,font,size,lineHeight,maxLines=3}){
+  let fittedSize=size,lines=wrapLines(text,font,fittedSize,width);
+  while(lines.length>maxLines&&fittedSize>6.5){fittedSize-=.2;lines=wrapLines(text,font,fittedSize,width)}
+  lines.forEach((line,index)=>page.drawText(line,{x:centerX-font.widthOfTextAtSize(line,fittedSize)/2,y:y-index*lineHeight,size:fittedSize,font,color:PDFLib.rgb(0,0,0)}));
+}
+async function generate(){
   let valid=true;requiredIds.forEach(id=>{const el=$(id),bad=!el.value.trim()||(id==="email"&&!/^\S+@\S+\.\S+$/.test(el.value));el.classList.toggle("invalid",bad);if(bad)valid=false});
   if(!valid){$("finalStatus").className="status error";$("finalStatus").textContent="Revise os campos destacados.";document.querySelector(".invalid")?.focus();return}
-  const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:"mm",format:"a4"});let y=25,page=1;const margin=22,width=166;
-  const footer=()=>{pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(90);pdf.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")} • Página ${page}`,105,288,{align:"center"})};
-  const next=()=>{footer();pdf.addPage();page++;y=24};
-  const write=(text,size=11,bold=false,gap=5)=>{pdf.setFont("helvetica",bold?"bold":"normal");pdf.setFontSize(size);pdf.setTextColor(20,42,67);const lines=pdf.splitTextToSize(text,width),need=lines.length*(size*.38)+gap;if(y+need>278)next();pdf.text(lines,margin,y,{align:"justify",maxWidth:width});y+=need};
-  pdf.setFont("helvetica","bold");pdf.setFontSize(16);pdf.setTextColor(16,42,67);pdf.text("TERMO DE CONVÊNIO DE CONCESSÃO DE",105,y,{align:"center"});y+=7;pdf.text("ESTÁGIO OBRIGATÓRIO",105,y,{align:"center"});y+=15;
-  write(`Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e ${$("razaoSocial").value.toUpperCase()}, visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei nº 11.788/2008.`,11,false,10);
-  const complemento=$("complemento").value.trim();
-  const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}`;
-  write(`A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., inscrita no CNPJ nº 01.207.056/0001-84, com sede em Maringá/PR; e ${$("razaoSocial").value.toUpperCase()}, inscrita no CNPJ nº ${$("cnpj").value}, com sede à ${enderecoCompleto}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}, representada por ${$("representante").value}, RG nº ${$("rg").value}, CPF nº ${$("cpf").value}, ${$("cargo").value}, e-mail ${$("email").value}, doravante denominada CONCEDENTE, celebram o presente termo.`,11,false,9);
-  clauses.forEach(([t,b])=>{write(t,11,true,3);write(b,10.5,false,7)});write(`Maringá/PR, ${formatDate($("data").value)}.`,11,false,22);if(y>245)next();pdf.setDrawColor(50);pdf.line(25,y,90,y);pdf.line(120,y,185,y);y+=6;pdf.setFontSize(9);pdf.setFont("helvetica","bold");pdf.text("UNIDADE DE ENSINO SUPERIOR INGÁ LTDA.",57.5,y,{align:"center",maxWidth:65});pdf.text($("razaoSocial").value.toUpperCase(),152.5,y,{align:"center",maxWidth:65});y+=12;pdf.setFont("helvetica","normal");pdf.text("UNINGÁ",57.5,y,{align:"center"});pdf.text("CONCEDENTE",152.5,y,{align:"center"});footer();
-  const name=$("razaoSocial").value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");pdf.save(`convenio-${name}.pdf`);$("finalStatus").className="status success";$("finalStatus").textContent="PDF gerado com sucesso.";
+  $("finalStatus").className="status";$("finalStatus").textContent="Gerando o documento oficial…";
+  try{
+    const loadAsset=async path=>fetch(path).then(response=>{if(!response.ok)throw new Error(`Arquivo necessário não encontrado: ${path}`);return response.arrayBuffer()});
+    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-4"),loadAsset("DejaVuSerif.ttf"),loadAsset("DejaVuSerif-Bold.ttf")]);
+    const pdf=await PDFLib.PDFDocument.load(templateBytes);pdf.registerFontkit(fontkit);
+    const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
+    const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
+    const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}`;
+    const intro=`Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e ${razao}, visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008.`;
+    const preambulo=`A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e ${razao}, inscrita no CNPJ sob N° ${$("cnpj").value}, com sede à ${enderecoCompleto}, neste ato representado por ${$("representante").value}, portador do RG nº ${$("rg").value} e CPF nº ${$("cpf").value}, ${$("cargo").value}, e-mail ${$("email").value}, doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:`;
+
+    const page1=pages[0];
+    page1.drawRectangle({x:272,y:525,width:252,height:101,color:white});
+    drawJustified(page1,intro,{x:278,y:607,width:240,font:regular,size:11,lineHeight:14.55,maxLines:7});
+    page1.drawRectangle({x:66,y:224,width:458,height:252,color:white});
+    drawJustified(page1,preambulo,{x:71,y:457,width:447,font:regular,size:11,lineHeight:20.7,maxLines:12});
+
+    const page5=pages[4];
+    page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});
+    page5.drawText(`Maringá/PR, ${formatDate($("data").value)}.`,{x:76,y:306,size:11,font:regular,color:PDFLib.rgb(0,0,0)});
+
+    const page6=pages[5];
+    page6.drawRectangle({x:348,y:733,width:182,height:32,color:white});
+    page6.drawLine({start:{x:349,y:760},end:{x:528,y:760},thickness:.7,color:PDFLib.rgb(0,0,0)});
+    drawCenteredWrapped(page6,razao,{centerX:438.5,y:748,width:170,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
+
+    pdf.setTitle("Termo de Convênio de Concessão de Estágio Obrigatório");pdf.setAuthor("UNINGÁ – Centro Universitário Ingá");pdf.setCreator("Gerador de Convênios em PDF");
+    const bytes=await pdf.save(),blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),link=document.createElement("a");
+    const name=razao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");link.href=url;link.download=`convenio-${name}.pdf`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    $("finalStatus").className="status success";$("finalStatus").textContent="Documento oficial de 6 páginas gerado com sucesso.";
+  }catch(error){$("finalStatus").className="status error";$("finalStatus").textContent=`Não foi possível gerar o PDF: ${error.message}`}
 }
 $("form").addEventListener("submit",e=>{e.preventDefault();generate()});$("generateButton").addEventListener("click",generate);$("clearButton").addEventListener("click",()=>{if(confirm("Deseja limpar todos os dados?")){$("form").reset();$("data").value=new Date().toISOString().slice(0,10);$("importStatus").textContent="";$("finalStatus").textContent="";updateProgress()}});updateProgress();
