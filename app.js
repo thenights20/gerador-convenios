@@ -102,6 +102,19 @@ function drawJustified(page,text,{x,y,width,font,size,lineHeight,maxLines}){
   });
   return lines.length;
 }
+function richWords(segments,regular,bold){
+  return segments.flatMap(segment=>segment.text.trim().split(/\s+/).filter(Boolean).map(text=>({text,font:segment.bold?bold:regular})));
+}
+function wrapRich(segments,regular,bold,size,maxWidth){
+  const words=richWords(segments,regular,bold),space=regular.widthOfTextAtSize(" ",size),lines=[];let line=[],width=0;
+  for(const word of words){const wordWidth=word.font.widthOfTextAtSize(word.text,size),next=width+(line.length?space:0)+wordWidth;if(line.length&&next>maxWidth){lines.push(line);line=[word];width=wordWidth}else{line.push(word);width=next}}
+  if(line.length)lines.push(line);return lines;
+}
+function drawRichJustified(page,segments,{x,y,width,regular,bold,size,lineHeight,maxLines}){
+  let fittedSize=size,lines=wrapRich(segments,regular,bold,fittedSize,width);
+  while(lines.length>maxLines&&fittedSize>8.4){fittedSize-=.2;lines=wrapRich(segments,regular,bold,fittedSize,width)}
+  lines.forEach((line,index)=>{const last=index===lines.length-1,wordsWidth=line.reduce((sum,word)=>sum+word.font.widthOfTextAtSize(word.text,fittedSize),0),gap=line.length===1?0:(last?regular.widthOfTextAtSize(" ",fittedSize):(width-wordsWidth)/(line.length-1));let cursor=x;line.forEach(word=>{page.drawText(word.text,{x:cursor,y:y-index*lineHeight,size:fittedSize,font:word.font,color:PDFLib.rgb(0,0,0)});cursor+=word.font.widthOfTextAtSize(word.text,fittedSize)+gap})});
+}
 function drawCenteredWrapped(page,text,{centerX,y,width,font,size,lineHeight,maxLines=3}){
   let fittedSize=size,lines=wrapLines(text,font,fittedSize,width);
   while(lines.length>maxLines&&fittedSize>6.5){fittedSize-=.2;lines=wrapLines(text,font,fittedSize,width)}
@@ -113,19 +126,20 @@ async function generate(){
   $("finalStatus").className="status";$("finalStatus").textContent="Gerando o documento oficial…";
   try{
     const loadAsset=async path=>fetch(path).then(response=>{if(!response.ok)throw new Error(`Arquivo necessário não encontrado: ${path}`);return response.arrayBuffer()});
-    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-5"),loadAsset("DejaVuSerif.ttf"),loadAsset("DejaVuSerif-Bold.ttf")]);
+    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-6"),loadAsset("TimesNewRoman-Regular.otf"),loadAsset("TimesNewRoman-Bold.otf")]);
     const pdf=await PDFLib.PDFDocument.load(templateBytes);pdf.registerFontkit(fontkit);
     const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
     const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}`;
-    const intro=`Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e ${razao}, visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008.`;
-    const preambulo=`A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e ${razao}, inscrita no CNPJ sob N° ${$("cnpj").value}, com sede à ${enderecoCompleto}, neste ato representado por ${$("representante").value}, portador do RG nº ${$("rg").value} e CPF nº ${$("cpf").value}, ${$("cargo").value}, e-mail ${$("email").value}, doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:`;
+    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL ${$("email").value}`.toUpperCase();
+    const intro=[{text:"Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e"},{text:razao,bold:true},{text:", visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008."}];
+    const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
 
     const page1=pages[0];
     page1.drawRectangle({x:272,y:525,width:252,height:101,color:white});
-    drawJustified(page1,intro,{x:278,y:607,width:240,font:regular,size:11,lineHeight:14.55,maxLines:7});
+    drawRichJustified(page1,intro,{x:278,y:607,width:240,regular,bold,size:11,lineHeight:14.55,maxLines:7});
     page1.drawRectangle({x:66,y:224,width:458,height:252,color:white});
-    drawJustified(page1,preambulo,{x:71,y:457,width:447,font:regular,size:11,lineHeight:20.7,maxLines:12});
+    drawRichJustified(page1,preambulo,{x:71,y:457,width:447,regular,bold,size:11,lineHeight:20.7,maxLines:12});
 
     const page5=pages[4];
     page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});
