@@ -4,7 +4,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 const $ = (id) => document.getElementById(id);
 const companyIds = ["razaoSocial","cnpj","cep","endereco","numero","bairro","cidade","uf"];
 const personIds = ["representante","cpf","rg","cargo","email"];
-const allIds = [...companyIds,...personIds,"data"];
+const allIds = [...companyIds,"complemento",...personIds,"data"];
+const requiredIds = [...companyIds,...personIds,"data"];
 
 $("data").value = new Date().toISOString().slice(0,10);
 
@@ -13,6 +14,10 @@ function maskCnpj(v){return digits(v).slice(0,14).replace(/^(\d{2})(\d)/,"$1.$2"
 function maskCpf(v){return digits(v).slice(0,11).replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/(\d{3})(\d{1,2})$/,"$1-$2")}
 function maskCep(v){return digits(v).slice(0,8).replace(/(\d{5})(\d)/,"$1-$2")}
 function clean(v){return (v||"").replace(/\*+/g,"").replace(/\s+/g," ").trim()}
+function normalizeLogradouro(value){
+  const cleaned=clean(value);
+  return cleaned.replace(/^R\.?\s+/i,"RUA ");
+}
 
 function setValue(id,value){$(id).value=clean(value);$(id).dispatchEvent(new Event("input",{bubbles:true}))}
 function count(ids){return ids.filter(id=>$(id).value.trim()).length}
@@ -52,13 +57,14 @@ function parseReceipt(lines){
   const text=lines.map(r=>r.text).join("\n");
   const cnpj=(text.match(/\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/)||[])[0]||"";
   const razao=findAfter(lines,"NOME EMPRESARIAL",["TÍTULO DO ESTABELECIMENTO"]);
-  let endereco=columnValue(lines,"LOGRADOURO",["LOGRADOURO","NÚMERO","COMPLEMENTO"]);
+  let endereco=normalizeLogradouro(columnValue(lines,"LOGRADOURO",["LOGRADOURO","NÚMERO","COMPLEMENTO"]));
   let numero=columnValue(lines,"NÚMERO",["LOGRADOURO","NÚMERO","COMPLEMENTO"]);
+  let complemento=columnValue(lines,"COMPLEMENTO",["LOGRADOURO","NÚMERO","COMPLEMENTO"]);
   const cep=(text.match(/\b\d{2}\.\d{3}-\d{3}\b/)||text.match(/\b\d{5}-\d{3}\b/)||[])[0]||"";
   let bairro=columnValue(lines,"BAIRRO/DISTRITO",["CEP","BAIRRO/DISTRITO","MUNICÍPIO","UF"]);
   let cidade=columnValue(lines,"MUNICÍPIO",["CEP","BAIRRO/DISTRITO","MUNICÍPIO","UF"]);
   let uf=columnValue(lines,"UF",["CEP","BAIRRO/DISTRITO","MUNICÍPIO","UF"]);
-  return{razaoSocial:razao,cnpj,cep,endereco,numero,bairro,cidade,uf:uf.slice(0,2)};
+  return{razaoSocial:razao,cnpj,cep,endereco,numero,complemento,bairro,cidade,uf:uf.slice(0,2)};
 }
 
 async function importPdf(file){
@@ -95,7 +101,7 @@ const clauses=[
 ];
 function formatDate(iso){return new Intl.DateTimeFormat("pt-BR",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(`${iso}T00:00:00Z`))}
 function generate(){
-  let valid=true;allIds.forEach(id=>{const el=$(id),bad=!el.value.trim()||(id==="email"&&!/^\S+@\S+\.\S+$/.test(el.value));el.classList.toggle("invalid",bad);if(bad)valid=false});
+  let valid=true;requiredIds.forEach(id=>{const el=$(id),bad=!el.value.trim()||(id==="email"&&!/^\S+@\S+\.\S+$/.test(el.value));el.classList.toggle("invalid",bad);if(bad)valid=false});
   if(!valid){$("finalStatus").className="status error";$("finalStatus").textContent="Revise os campos destacados.";document.querySelector(".invalid")?.focus();return}
   const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:"mm",format:"a4"});let y=25,page=1;const margin=22,width=166;
   const footer=()=>{pdf.setFont("helvetica","normal");pdf.setFontSize(8);pdf.setTextColor(90);pdf.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")} • Página ${page}`,105,288,{align:"center"})};
@@ -103,7 +109,9 @@ function generate(){
   const write=(text,size=11,bold=false,gap=5)=>{pdf.setFont("helvetica",bold?"bold":"normal");pdf.setFontSize(size);pdf.setTextColor(20,42,67);const lines=pdf.splitTextToSize(text,width),need=lines.length*(size*.38)+gap;if(y+need>278)next();pdf.text(lines,margin,y,{align:"justify",maxWidth:width});y+=need};
   pdf.setFont("helvetica","bold");pdf.setFontSize(16);pdf.setTextColor(16,42,67);pdf.text("TERMO DE CONVÊNIO DE CONCESSÃO DE",105,y,{align:"center"});y+=7;pdf.text("ESTÁGIO OBRIGATÓRIO",105,y,{align:"center"});y+=15;
   write(`Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e ${$("razaoSocial").value.toUpperCase()}, visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei nº 11.788/2008.`,11,false,10);
-  write(`A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., inscrita no CNPJ nº 01.207.056/0001-84, com sede em Maringá/PR; e ${$("razaoSocial").value.toUpperCase()}, inscrita no CNPJ nº ${$("cnpj").value}, com sede à ${$("endereco").value}, nº ${$("numero").value}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}, representada por ${$("representante").value}, RG nº ${$("rg").value}, CPF nº ${$("cpf").value}, ${$("cargo").value}, e-mail ${$("email").value}, doravante denominada CONCEDENTE, celebram o presente termo.`,11,false,9);
+  const complemento=$("complemento").value.trim();
+  const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}`;
+  write(`A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., inscrita no CNPJ nº 01.207.056/0001-84, com sede em Maringá/PR; e ${$("razaoSocial").value.toUpperCase()}, inscrita no CNPJ nº ${$("cnpj").value}, com sede à ${enderecoCompleto}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}, representada por ${$("representante").value}, RG nº ${$("rg").value}, CPF nº ${$("cpf").value}, ${$("cargo").value}, e-mail ${$("email").value}, doravante denominada CONCEDENTE, celebram o presente termo.`,11,false,9);
   clauses.forEach(([t,b])=>{write(t,11,true,3);write(b,10.5,false,7)});write(`Maringá/PR, ${formatDate($("data").value)}.`,11,false,22);if(y>245)next();pdf.setDrawColor(50);pdf.line(25,y,90,y);pdf.line(120,y,185,y);y+=6;pdf.setFontSize(9);pdf.setFont("helvetica","bold");pdf.text("UNIDADE DE ENSINO SUPERIOR INGÁ LTDA.",57.5,y,{align:"center",maxWidth:65});pdf.text($("razaoSocial").value.toUpperCase(),152.5,y,{align:"center",maxWidth:65});y+=12;pdf.setFont("helvetica","normal");pdf.text("UNINGÁ",57.5,y,{align:"center"});pdf.text("CONCEDENTE",152.5,y,{align:"center"});footer();
   const name=$("razaoSocial").value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");pdf.save(`convenio-${name}.pdf`);$("finalStatus").className="status success";$("finalStatus").textContent="PDF gerado com sucesso.";
 }
