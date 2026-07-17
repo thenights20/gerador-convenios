@@ -113,7 +113,7 @@ async function generate(){
   $("finalStatus").className="status";$("finalStatus").textContent="Gerando o documento oficial…";
   try{
     const loadAsset=async path=>fetch(path).then(response=>{if(!response.ok)throw new Error(`Arquivo necessário não encontrado: ${path}`);return response.arrayBuffer()});
-    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-4"),loadAsset("DejaVuSerif.ttf"),loadAsset("DejaVuSerif-Bold.ttf")]);
+    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-5"),loadAsset("DejaVuSerif.ttf"),loadAsset("DejaVuSerif-Bold.ttf")]);
     const pdf=await PDFLib.PDFDocument.load(templateBytes);pdf.registerFontkit(fontkit);
     const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
@@ -130,11 +130,8 @@ async function generate(){
     const page5=pages[4];
     page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});
     page5.drawText(`Maringá/PR, ${formatDate($("data").value)}.`,{x:76,y:306,size:11,font:regular,color:PDFLib.rgb(0,0,0)});
-
-    const page6=pages[5];
-    page6.drawRectangle({x:348,y:733,width:182,height:32,color:white});
-    page6.drawLine({start:{x:349,y:760},end:{x:528,y:760},thickness:.7,color:PDFLib.rgb(0,0,0)});
-    drawCenteredWrapped(page6,razao,{centerX:438.5,y:748,width:170,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
+    page5.drawRectangle({x:343,y:164,width:190,height:25,color:white});
+    drawCenteredWrapped(page5,razao,{centerX:438,y:179,width:178,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
 
     pdf.setTitle("Termo de Convênio de Concessão de Estágio Obrigatório");pdf.setAuthor("UNINGÁ – Centro Universitário Ingá");pdf.setCreator("Gerador de Convênios em PDF");
     const bytes=await pdf.save(),blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),link=document.createElement("a");

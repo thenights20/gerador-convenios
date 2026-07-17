@@ -1,6 +1,6 @@
 # Gerador de Convênios em PDF
 
-Site estático para GitHub Pages. O comprovante de inscrição do CNPJ emitido pela Receita Federal é lido localmente no navegador; nenhum arquivo ou dado é enviado para servidor. O PDF final utiliza `modelo-convenio.pdf` como base e preserva as seis páginas do documento oficial, incluindo logotipo, cláusulas integrais, rodapé, testemunhas e assinaturas.
+Site estático para GitHub Pages. O comprovante de inscrição do CNPJ emitido pela Receita Federal é lido localmente no navegador; nenhum arquivo ou dado é enviado para servidor. O PDF final utiliza como base uma conversão direta do DOCX oficial enviado e preserva suas seis páginas, incluindo logotipo, cláusulas integrais, rodapé, testemunhas e assinaturas.
 
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
