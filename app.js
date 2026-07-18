@@ -132,9 +132,11 @@ async function generate(){
   $("finalStatus").className="status";$("finalStatus").textContent="Gerando o documento oficial…";
   try{
     const loadAsset=async path=>fetch(path).then(response=>{if(!response.ok)throw new Error(`Arquivo necessário não encontrado: ${path}`);return response.arrayBuffer()});
-    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260717-7"),loadAsset("TIMES.TTF?v=20260717-7"),loadAsset("TIMESBD.TTF?v=20260717-7")]);
+    const [templateBytes,regularBytes,boldBytes]=await Promise.all([loadAsset("modelo-convenio.pdf?v=20260718-11"),loadAsset("TIMES.TTF?v=20260718-11"),loadAsset("TIMESBD.TTF?v=20260718-11")]);
     const pdf=await PDFLib.PDFDocument.load(templateBytes);pdf.registerFontkit(fontkit);
-    const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
+    const pages=pdf.getPages();
+    if(pages.length!==6)throw new Error(`O modelo carregado possui ${pages.length} página(s), mas o modelo oficial deve possuir 6. Atualize a página com Ctrl + F5.`);
+    const regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
     const estado=estados[$("uf").value.toUpperCase()]||`Estado de ${$("uf").value.toUpperCase()}`;
     const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, na cidade de ${$("cidade").value}, ${estado}, CEP ${$("cep").value}`;

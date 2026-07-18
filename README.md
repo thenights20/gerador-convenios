@@ -8,6 +8,8 @@ O formulário valida os dígitos do CPF e solicita o órgão expedidor do RG. No
 
 A área de substituição da apresentação inicial cobre integralmente o texto-placeholder do modelo para impedir sobreposição.
 
+O gerador exige o modelo oficial de seis páginas e interrompe a geração caso o navegador carregue uma versão antiga ou incorreta. Os arquivos principais usam identificadores de versão para evitar cache do GitHub Pages.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida
