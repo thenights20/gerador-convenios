@@ -10,6 +10,8 @@ A área de substituição da apresentação inicial cobre integralmente o texto-
 
 O gerador exige o modelo oficial de seis páginas e interrompe a geração caso o navegador carregue uma versão antiga ou incorreta. Os arquivos principais usam identificadores de versão para evitar cache do GitHub Pages.
 
+No endereço da concedente é usada a expressão `no município de`. Na área de assinatura, aparece o nome completo do representante legal em caixa alta, negrito e tamanho 12, no lugar da razão social.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida

@@ -139,7 +139,7 @@ async function generate(){
     const regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
     const estado=estados[$("uf").value.toUpperCase()]||`Estado de ${$("uf").value.toUpperCase()}`;
-    const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, na cidade de ${$("cidade").value}, ${estado}, CEP ${$("cep").value}`;
+    const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, no município de ${$("cidade").value}, ${estado}, CEP ${$("cep").value}`;
     const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} ${$("orgaoExpedidor").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL "${$("email").value}"`.toUpperCase();
     const intro=[{text:"Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e"},{text:razao,bold:true},{text:", visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008."}];
     const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
@@ -153,9 +153,10 @@ async function generate(){
     const page5=pages[4];
     page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});
     page5.drawText(`Maringá/PR, ${formatDate($("data").value)}.`,{x:76,y:306,size:11,font:regular,color:PDFLib.rgb(0,0,0)});
-    page5.drawRectangle({x:343,y:137,width:190,height:52,color:white});
-    drawCenteredWrapped(page5,razao,{centerX:438,y:171,width:178,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
-    const concedente="CONCEDENTE";page5.drawText(concedente,{x:438-regular.widthOfTextAtSize(concedente,12)/2,y:144,size:12,font:regular,color:PDFLib.rgb(0,0,0)});
+    page5.drawRectangle({x:343,y:124,width:190,height:66,color:white});
+    const nomeRepresentante=$("representante").value.trim().toUpperCase();
+    drawCenteredWrapped(page5,nomeRepresentante,{centerX:438,y:171,width:178,font:bold,size:12,lineHeight:15,maxLines:2});
+    const concedente="CONCEDENTE";page5.drawText(concedente,{x:438-regular.widthOfTextAtSize(concedente,12)/2,y:127,size:12,font:regular,color:PDFLib.rgb(0,0,0)});
 
     pdf.setTitle("Termo de Convênio de Concessão de Estágio Obrigatório");pdf.setAuthor("UNINGÁ – Centro Universitário Ingá");pdf.setCreator("Gerador de Convênios em PDF");
     const bytes=await pdf.save(),blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),link=document.createElement("a");
