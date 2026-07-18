@@ -143,7 +143,7 @@ async function generate(){
     const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
 
     const page1=pages[0];
-    page1.drawRectangle({x:272,y:525,width:252,height:101,color:white});
+    page1.drawRectangle({x:270,y:515,width:255,height:120,color:white});
     drawRichJustified(page1,intro,{x:278,y:607,width:240,regular,bold,size:12,lineHeight:14.55,maxLines:7});
     page1.drawRectangle({x:66,y:224,width:458,height:252,color:white});
     drawRichJustified(page1,preambulo,{x:76,y:457,width:441,regular,bold,size:12,lineHeight:18.5,maxLines:13});
