@@ -12,6 +12,8 @@ O gerador exige o modelo oficial de seis páginas e interrompe a geração caso 
 
 No endereço da concedente é usada a expressão `no município de`. Na área de assinatura, aparece o nome completo do representante legal em caixa alta, negrito e tamanho 12, no lugar da razão social.
 
+A linha da assinatura da concedente é redesenhada integralmente e o nome fica abaixo dela. A terceira coluna do formulário foi ampliada para exibir o CNPJ completo, além de dar mais espaço a Número e Cidade.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida
