@@ -131,15 +131,15 @@ async function generate(){
     const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
     const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}`;
-    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL ${$("email").value}`.toUpperCase();
+    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL "${$("email").value}"`.toUpperCase();
     const intro=[{text:"Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e"},{text:razao,bold:true},{text:", visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008."}];
     const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
 
     const page1=pages[0];
     page1.drawRectangle({x:272,y:525,width:252,height:101,color:white});
-    drawRichJustified(page1,intro,{x:278,y:607,width:240,regular,bold,size:11,lineHeight:14.55,maxLines:7});
+    drawRichJustified(page1,intro,{x:278,y:607,width:240,regular,bold,size:12,lineHeight:14.55,maxLines:7});
     page1.drawRectangle({x:66,y:224,width:458,height:252,color:white});
-    drawRichJustified(page1,preambulo,{x:71,y:457,width:447,regular,bold,size:11,lineHeight:20.7,maxLines:12});
+    drawRichJustified(page1,preambulo,{x:76,y:457,width:441,regular,bold,size:12,lineHeight:18.5,maxLines:13});
 
     const page5=pages[4];
     page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});

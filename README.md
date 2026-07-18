@@ -2,6 +2,8 @@
 
 Site estático para GitHub Pages. O comprovante de inscrição do CNPJ emitido pela Receita Federal é lido localmente no navegador; nenhum arquivo ou dado é enviado para servidor. O PDF final utiliza como base uma conversão direta do DOCX oficial enviado e preserva suas seis páginas, incluindo logotipo, cláusulas integrais, rodapé, testemunhas e assinaturas. Os dados substituídos usam os arquivos originais da fonte Times New Roman; os campos originalmente destacados em amarelo são inseridos em negrito e caixa alta.
 
+O preâmbulo usa tamanho 12 e a mesma margem da cláusula seguinte. O endereço eletrônico do representante é inserido entre aspas.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida
