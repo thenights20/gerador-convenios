@@ -4,6 +4,8 @@ Site estático para GitHub Pages. O comprovante de inscrição do CNPJ emitido p
 
 O preâmbulo usa tamanho 12 e a mesma margem da cláusula seguinte. O endereço eletrônico do representante é inserido entre aspas.
 
+O formulário valida os dígitos do CPF e solicita o órgão expedidor do RG. No endereço, a UF é escrita por extenso com a preposição adequada, como `Estado de São Paulo`, `Estado do Paraná` ou `Estado da Bahia`.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida

@@ -3,7 +3,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 
 const $ = (id) => document.getElementById(id);
 const companyIds = ["razaoSocial","cnpj","cep","endereco","numero","bairro","cidade","uf"];
-const personIds = ["representante","cpf","rg","cargo","email"];
+const personIds = ["representante","cpf","rg","orgaoExpedidor","cargo","email"];
 const allIds = [...companyIds,"complemento",...personIds,"data"];
 const requiredIds = [...companyIds,...personIds,"data"];
 
@@ -13,6 +13,12 @@ function digits(v){return v.replace(/\D/g,"")}
 function maskCnpj(v){return digits(v).slice(0,14).replace(/^(\d{2})(\d)/,"$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/,"$1.$2.$3").replace(/\.(\d{3})(\d)/,".$1/$2").replace(/(\d{4})(\d)/,"$1-$2")}
 function maskCpf(v){return digits(v).slice(0,11).replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/(\d{3})(\d{1,2})$/,"$1-$2")}
 function maskCep(v){return digits(v).slice(0,8).replace(/(\d{5})(\d)/,"$1-$2")}
+function validCpf(value){
+  const cpf=digits(value);if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf))return false;
+  const check=length=>{let sum=0;for(let i=0;i<length;i++)sum+=Number(cpf[i])*(length+1-i);const rest=(sum*10)%11;return(rest===10?0:rest)===Number(cpf[length])};
+  return check(9)&&check(10);
+}
+const estados={AC:"Estado do Acre",AL:"Estado de Alagoas",AP:"Estado do Amapá",AM:"Estado do Amazonas",BA:"Estado da Bahia",CE:"Estado do Ceará",DF:"Distrito Federal",ES:"Estado do Espírito Santo",GO:"Estado de Goiás",MA:"Estado do Maranhão",MT:"Estado de Mato Grosso",MS:"Estado de Mato Grosso do Sul",MG:"Estado de Minas Gerais",PA:"Estado do Pará",PB:"Estado da Paraíba",PR:"Estado do Paraná",PE:"Estado de Pernambuco",PI:"Estado do Piauí",RJ:"Estado do Rio de Janeiro",RN:"Estado do Rio Grande do Norte",RS:"Estado do Rio Grande do Sul",RO:"Estado de Rondônia",RR:"Estado de Roraima",SC:"Estado de Santa Catarina",SP:"Estado de São Paulo",SE:"Estado de Sergipe",TO:"Estado do Tocantins"};
 function clean(v){return (v||"").replace(/\*+/g,"").replace(/\s+/g," ").trim()}
 function normalizeLogradouro(value){
   const cleaned=clean(value);
@@ -22,16 +28,16 @@ function normalizeLogradouro(value){
 function setValue(id,value){$(id).value=clean(value);$(id).dispatchEvent(new Event("input",{bubbles:true}))}
 function count(ids){return ids.filter(id=>$(id).value.trim()).length}
 function updateProgress(){
-  const c=count(companyIds),p=count(personIds),d=$("data").value?1:0,total=c+p+d,percent=Math.round(total/14*100);
-  $("progressText").textContent=total===14?"Dados obrigatórios preenchidos":`${percent}% preenchido`;
-  $("progressCount").textContent=`${total}/14`;$("progressBar").style.width=`${percent}%`;
-  $("companyCount").textContent=`${c}/8`;$("personCount").textContent=`${p}/5`;$("dateCount").textContent=`${d}/1`;
-  $("companyCheck").textContent=c===8?"✓":"○";$("personCheck").textContent=p===5?"✓":"○";$("dateCheck").textContent=d?"✓":"○";
-  $("generateButton").disabled=total!==14;$("previewName").textContent=$("razaoSocial").value||"Nome da instituição";
+  const c=count(companyIds),p=count(personIds),d=$("data").value?1:0,total=c+p+d,percent=Math.round(total/15*100);
+  $("progressText").textContent=total===15?"Dados obrigatórios preenchidos":`${percent}% preenchido`;
+  $("progressCount").textContent=`${total}/15`;$("progressBar").style.width=`${percent}%`;
+  $("companyCount").textContent=`${c}/8`;$("personCount").textContent=`${p}/6`;$("dateCount").textContent=`${d}/1`;
+  $("companyCheck").textContent=c===8?"✓":"○";$("personCheck").textContent=p===6?"✓":"○";$("dateCheck").textContent=d?"✓":"○";
+  $("generateButton").disabled=total!==15;$("previewName").textContent=$("razaoSocial").value||"Nome da instituição";
 }
 
 allIds.forEach(id=>$(id).addEventListener("input",e=>{
-  if(id==="cnpj")e.target.value=maskCnpj(e.target.value);if(id==="cpf")e.target.value=maskCpf(e.target.value);if(id==="cep")e.target.value=maskCep(e.target.value);if(id==="uf")e.target.value=e.target.value.toUpperCase().slice(0,2);e.target.classList.remove("invalid");updateProgress();
+  if(id==="cnpj")e.target.value=maskCnpj(e.target.value);if(id==="cpf")e.target.value=maskCpf(e.target.value);if(id==="cep")e.target.value=maskCep(e.target.value);if(id==="uf")e.target.value=e.target.value.toUpperCase().slice(0,2);if(id==="orgaoExpedidor")e.target.value=e.target.value.toUpperCase();e.target.classList.remove("invalid");updateProgress();
 }));
 
 function rowsFromItems(items){
@@ -121,8 +127,8 @@ function drawCenteredWrapped(page,text,{centerX,y,width,font,size,lineHeight,max
   lines.forEach((line,index)=>page.drawText(line,{x:centerX-font.widthOfTextAtSize(line,fittedSize)/2,y:y-index*lineHeight,size:fittedSize,font,color:PDFLib.rgb(0,0,0)}));
 }
 async function generate(){
-  let valid=true;requiredIds.forEach(id=>{const el=$(id),bad=!el.value.trim()||(id==="email"&&!/^\S+@\S+\.\S+$/.test(el.value));el.classList.toggle("invalid",bad);if(bad)valid=false});
-  if(!valid){$("finalStatus").className="status error";$("finalStatus").textContent="Revise os campos destacados.";document.querySelector(".invalid")?.focus();return}
+  let valid=true,invalidCpf=false;requiredIds.forEach(id=>{const el=$(id),bad=!el.value.trim()||(id==="email"&&!/^\S+@\S+\.\S+$/.test(el.value))||(id==="cpf"&&!validCpf(el.value));el.classList.toggle("invalid",bad);if(bad){valid=false;if(id==="cpf"&&el.value.trim())invalidCpf=true}});
+  if(!valid){$("finalStatus").className="status error";$("finalStatus").textContent=invalidCpf?"CPF inválido. Confira os números informados.":"Revise os campos destacados.";document.querySelector(".invalid")?.focus();return}
   $("finalStatus").className="status";$("finalStatus").textContent="Gerando o documento oficial…";
   try{
     const loadAsset=async path=>fetch(path).then(response=>{if(!response.ok)throw new Error(`Arquivo necessário não encontrado: ${path}`);return response.arrayBuffer()});
@@ -130,8 +136,9 @@ async function generate(){
     const pdf=await PDFLib.PDFDocument.load(templateBytes);pdf.registerFontkit(fontkit);
     const pages=pdf.getPages(),regular=await pdf.embedFont(regularBytes,{subset:true}),bold=await pdf.embedFont(boldBytes,{subset:true}),white=PDFLib.rgb(1,1,1);
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
-    const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, ${$("cidade").value}/${$("uf").value}, CEP ${$("cep").value}`;
-    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL "${$("email").value}"`.toUpperCase();
+    const estado=estados[$("uf").value.toUpperCase()]||`Estado de ${$("uf").value.toUpperCase()}`;
+    const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, na cidade de ${$("cidade").value}, ${estado}, CEP ${$("cep").value}`;
+    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} ${$("orgaoExpedidor").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL "${$("email").value}"`.toUpperCase();
     const intro=[{text:"Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e"},{text:razao,bold:true},{text:", visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008."}];
     const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
 
@@ -144,8 +151,9 @@ async function generate(){
     const page5=pages[4];
     page5.drawRectangle({x:72,y:300,width:225,height:23,color:white});
     page5.drawText(`Maringá/PR, ${formatDate($("data").value)}.`,{x:76,y:306,size:11,font:regular,color:PDFLib.rgb(0,0,0)});
-    page5.drawRectangle({x:343,y:164,width:190,height:25,color:white});
-    drawCenteredWrapped(page5,razao,{centerX:438,y:179,width:178,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
+    page5.drawRectangle({x:343,y:137,width:190,height:52,color:white});
+    drawCenteredWrapped(page5,razao,{centerX:438,y:171,width:178,font:bold,size:8.5,lineHeight:9.5,maxLines:2});
+    const concedente="CONCEDENTE";page5.drawText(concedente,{x:438-regular.widthOfTextAtSize(concedente,12)/2,y:144,size:12,font:regular,color:PDFLib.rgb(0,0,0)});
 
     pdf.setTitle("Termo de Convênio de Concessão de Estágio Obrigatório");pdf.setAuthor("UNINGÁ – Centro Universitário Ingá");pdf.setCreator("Gerador de Convênios em PDF");
     const bytes=await pdf.save(),blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),link=document.createElement("a");

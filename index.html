@@ -56,6 +56,7 @@
           <label class="field"><span>Nome completo</span><input id="representante" required></label>
           <label class="field"><span>CPF</span><input id="cpf" required inputmode="numeric"></label>
           <label class="field"><span>RG</span><input id="rg" required></label>
+          <label class="field"><span>Órgão expedidor</span><input id="orgaoExpedidor" required placeholder="Ex.: SSP/MS"></label>
           <label class="field"><span>Cargo</span><input id="cargo" required></label>
           <label class="field span-2"><span>E-mail</span><input id="email" type="email" required></label>
         </div>
@@ -79,11 +80,11 @@
         <b>3. OBRIGAÇÕES</b><p></p><p></p><b>4. VIGÊNCIA</b><p></p>
       </div>
       <div class="completion">
-        <div class="progress-head"><strong id="progressText">0% preenchido</strong><span id="progressCount">0/14</span></div>
+        <div class="progress-head"><strong id="progressText">0% preenchido</strong><span id="progressCount">0/15</span></div>
         <div class="progress"><span id="progressBar"></span></div>
         <ul>
           <li><span id="companyCheck">○</span> Dados da instituição <b id="companyCount">0/8</b></li>
-          <li><span id="personCheck">○</span> Representante legal <b id="personCount">0/5</b></li>
+          <li><span id="personCheck">○</span> Representante legal <b id="personCount">0/6</b></li>
           <li><span id="dateCheck">○</span> Documento <b id="dateCount">0/1</b></li>
         </ul>
       </div>
@@ -96,6 +97,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js" crossorigin="anonymous"></script>
-  <script type="module" src="app.js?v=20260717-8"></script>
+  <script type="module" src="app.js?v=20260717-9"></script>
 </body>
 </html>
