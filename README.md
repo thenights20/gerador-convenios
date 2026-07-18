@@ -14,6 +14,10 @@ No endereço da concedente é usada a expressão `no município de`. Na área de
 
 A linha da assinatura da concedente é redesenhada integralmente e o nome fica abaixo dela. A terceira coluna do formulário foi ampliada para exibir o CNPJ completo, além de dar mais espaço a Número e Cidade.
 
+A linha da concedente usa a mesma altura visual da linha da contratante; toda a assinatura antiga é coberta para não restarem pequenos traços laterais.
+
+O alinhamento vertical da linha da concedente foi calibrado diretamente contra a linha da contratante no PDF renderizado.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida
