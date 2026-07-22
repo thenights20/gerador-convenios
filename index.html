@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#102a43">
   <title>Gerador de Convênios em PDF</title>
-  <link rel="stylesheet" href="style.css?v=20260722-1">
+  <link rel="stylesheet" href="style.css?v=20260722-2">
   <link rel="stylesheet" href="adjustments.css?v=20260722-1">
 </head>
 <body>
@@ -15,7 +15,7 @@
   </header>
 
   <nav class="steps" aria-label="Etapas">
-    <span class="active"><b>1</b> Importar CNPJ</span><i></i>
+    <span class="active"><b>1</b> Dados do concedente</span><i></i>
     <span><b>2</b> Representante</span><i></i>
     <span><b>3</b> Gerar PDF</span>
   </nav>
@@ -24,7 +24,18 @@
     <form id="form" class="form-card" novalidate>
       <h1>Dados do convênio</h1>
 
-      <section>
+      <div class="term-type" role="group" aria-label="Tipo de concedente">
+        <div class="term-type-copy">
+          <strong>Tipo de termo</strong>
+          <span>Escolha o documento do concedente</span>
+        </div>
+        <div class="segmented-control">
+          <button id="typeCnpj" class="segment active" type="button" aria-pressed="true">CNPJ</button>
+          <button id="typeCpf" class="segment" type="button" aria-pressed="false">CPF</button>
+        </div>
+      </div>
+
+      <section id="receiptSection">
         <h2>Comprovante da Receita Federal</h2>
         <div id="dropZone" class="drop-zone">
           <input id="pdfFile" type="file" accept="application/pdf,.pdf">
@@ -37,10 +48,10 @@
       </section>
 
       <section>
-        <h2>Dados da instituição <small>preenchidos pelo PDF</small></h2>
+        <h2 id="companySectionTitle">Dados da instituição <small id="companySectionHint">preenchidos pelo PDF</small></h2>
         <div class="form-grid">
           <label class="field span-2"><span>Razão social</span><input id="razaoSocial" required></label>
-          <label class="field"><span>CNPJ</span><input id="cnpj" required inputmode="numeric"></label>
+          <label class="field"><span id="identifierLabel">CNPJ</span><input id="cnpj" required inputmode="numeric" autocomplete="off"></label>
           <label class="field"><span>CEP</span><input id="cep" required inputmode="numeric"></label>
           <label class="field"><span>Endereço</span><input id="endereco" required></label>
           <label class="field"><span>Número</span><input id="numero" required></label>
@@ -102,6 +113,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js" crossorigin="anonymous"></script>
-  <script type="module" src="app.js?v=20260722-1"></script>
+  <script type="module" src="app.js?v=20260722-2"></script>
 </body>
 </html>

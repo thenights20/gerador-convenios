@@ -7,3 +7,15 @@
 .copy-status{min-height:17px;margin:6px 0 0;text-align:right;font-size:11px;color:var(--muted)}
 .copy-status.success{color:var(--green)}
 .copy-status.error{color:var(--red)}
+
+/* Tipo de termo: controle segmentado CNPJ / CPF */
+.term-type{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:4px 0 18px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(135deg,#f8fafc,#fff)}
+.term-type-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.term-type-copy strong{color:var(--navy);font-size:14px}
+.term-type-copy span{color:var(--muted);font-size:11px}
+.segmented-control{display:grid;grid-template-columns:1fr 1fr;min-width:210px;padding:4px;border:1px solid #cad4dd;border-radius:10px;background:#edf2f6;box-shadow:inset 0 1px 2px rgba(16,42,67,.05)}
+.segment{height:38px;padding:0 22px;border:0;border-radius:7px;background:transparent;color:var(--muted);font-weight:750;cursor:pointer;transition:background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease}
+.segment:hover:not(.active){color:var(--navy);background:rgba(255,255,255,.55)}
+.segment.active{background:#fff;color:var(--navy);box-shadow:0 2px 7px rgba(16,42,67,.14)}
+[hidden]{display:none!important}
+@media(max-width:680px){.term-type{align-items:stretch;flex-direction:column}.segmented-control{width:100%;min-width:0}.segment{padding:0 14px}}
