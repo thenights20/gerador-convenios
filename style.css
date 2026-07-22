@@ -87,3 +87,117 @@ h2{margin-bottom:10px}
   .company-name,.company-id,.address-field,.district-field,.city-field,.representative-name,.representative-email,.representative-role{grid-column:1 / -1}
   .cep-field,.number-field,.complement-field,.uf-field,.representative-cpf,.representative-rg,.representative-orgao{grid-column:auto}
 }
+
+/* v4 - comprovante ao lado do seletor de tipo */
+.top-tools{
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);
+  gap:14px;
+  align-items:stretch;
+  margin-bottom:12px;
+}
+.top-tools #receiptSection{
+  border-top:0;
+  padding:0;
+  min-width:0;
+}
+.receipt-compact{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+.receipt-compact h2{
+  margin:0 0 7px;
+  font-size:14px;
+}
+.top-tools .term-type{
+  margin:0;
+  min-height:0;
+  height:100%;
+  padding:12px 14px;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  gap:10px;
+}
+.top-tools .segmented-control{
+  width:100%;
+  min-width:0;
+}
+.top-tools .drop-zone{
+  min-height:74px;
+  height:74px;
+  padding:10px 12px;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  grid-template-rows:1fr;
+  column-gap:12px;
+  row-gap:0;
+}
+.top-tools .upload-icon{
+  grid-column:1;
+  grid-row:1;
+  width:36px;
+  height:36px;
+}
+.upload-copy{
+  grid-column:2;
+  grid-row:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:2px;
+  min-width:0;
+}
+.upload-copy strong{
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.upload-copy span{
+  color:var(--muted);
+  font-size:11px;
+}
+.top-tools .drop-zone button{
+  grid-column:3;
+  grid-row:1;
+  padding:8px 13px;
+  white-space:nowrap;
+}
+.top-tools .import-status{
+  margin:4px 0 0;
+  font-size:11px;
+  min-height:14px;
+}
+.top-tools:has(#receiptSection[hidden]){
+  grid-template-columns:1fr;
+}
+.top-tools:has(#receiptSection[hidden]) .term-type{
+  max-width:520px;
+  margin-left:auto;
+  width:100%;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+}
+.top-tools:has(#receiptSection[hidden]) .segmented-control{
+  width:230px;
+  flex:0 0 230px;
+}
+@media(max-width:1100px){
+  .top-tools{grid-template-columns:minmax(0,1.3fr) minmax(290px,.9fr)}
+  .upload-copy strong{font-size:12px}
+  .top-tools .drop-zone button{padding:8px 10px}
+}
+@media(max-width:820px){
+  .top-tools{grid-template-columns:1fr}
+  .top-tools .term-type{height:auto;flex-direction:row;align-items:center;justify-content:space-between}
+  .top-tools .segmented-control{width:230px;flex:0 0 230px}
+  .top-tools:has(#receiptSection[hidden]) .term-type{max-width:none}
+}
+@media(max-width:680px){
+  .top-tools .drop-zone{display:grid;min-height:82px;height:auto;text-align:left;padding:10px 12px}
+  .top-tools .term-type,.top-tools:has(#receiptSection[hidden]) .term-type{flex-direction:column;align-items:stretch}
+  .top-tools .segmented-control,.top-tools:has(#receiptSection[hidden]) .segmented-control{width:100%;flex-basis:auto}
+  .upload-copy strong{white-space:normal}
+}
