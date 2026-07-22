@@ -33,10 +33,10 @@ function buildCopyText(){
   return [
     `Razão social: ${$("razaoSocial").value.trim()}`,
     `CNPJ: ${cnpj}`,
-    `CNPJ (apenas números): ${digits(cnpj)}`,
+    `CNPJ: ${digits(cnpj)}`,
     `Representante legal: ${$("representante").value.trim()}`,
     `CPF: ${cpf}`,
-    `CPF sem pontuação: ${digits(cpf)}`
+    `CPF: ${digits(cpf)}`
   ].join("\n");
 }
 function updateCopyText(){
