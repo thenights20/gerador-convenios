@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#102a43">
   <title>Gerador de Convênios em PDF</title>
-  <link rel="stylesheet" href="style.css?v=20260722-2">
-  <link rel="stylesheet" href="adjustments.css?v=20260722-1">
+  <link rel="stylesheet" href="style.css?v=20260722-3">
 </head>
 <body>
   <header class="topbar">
@@ -22,7 +21,10 @@
 
   <main class="workspace">
     <form id="form" class="form-card" novalidate>
-      <h1>Dados do convênio</h1>
+      <div class="form-heading">
+        <h1>Dados do convênio</h1>
+        <label class="field date-field"><span>Data do convênio</span><input id="data" type="date" required></label>
+      </div>
 
       <div class="term-type" role="group" aria-label="Tipo de concedente">
         <div class="term-type-copy">
@@ -49,37 +51,31 @@
 
       <section>
         <h2 id="companySectionTitle">Dados da instituição <small id="companySectionHint">preenchidos pelo PDF</small></h2>
-        <div class="form-grid">
-          <label class="field span-2"><span>Razão social</span><input id="razaoSocial" required></label>
-          <label class="field"><span id="identifierLabel">CNPJ</span><input id="cnpj" required inputmode="numeric" autocomplete="off"></label>
-          <label class="field"><span>CEP</span><input id="cep" required inputmode="numeric"></label>
-          <label class="field"><span>Endereço</span><input id="endereco" required></label>
-          <label class="field"><span>Número</span><input id="numero" required></label>
-          <label class="field"><span>Complemento <small>(opcional)</small></span><input id="complemento" placeholder="Ex.: Casa 30"></label>
-          <label class="field"><span>Bairro</span><input id="bairro" required></label>
-          <label class="field"><span>Cidade</span><input id="cidade" required></label>
-          <label class="field"><span>UF</span><input id="uf" required maxlength="2"></label>
+        <div class="form-grid institution-grid">
+          <label class="field company-name"><span>Razão social</span><input id="razaoSocial" required></label>
+          <label class="field company-id"><span id="identifierLabel">CNPJ</span><input id="cnpj" required inputmode="numeric" autocomplete="off"></label>
+          <label class="field cep-field"><span>CEP</span><input id="cep" required inputmode="numeric" maxlength="9" placeholder="00000-000" autocomplete="postal-code"></label>
+          <label class="field address-field"><span>Endereço</span><input id="endereco" required autocomplete="street-address"></label>
+          <label class="field number-field"><span>Número</span><input id="numero" required></label>
+          <label class="field complement-field"><span>Complemento <small>(opcional)</small></span><input id="complemento" placeholder="Ex.: Casa 30"></label>
+          <label class="field district-field"><span>Bairro</span><input id="bairro" required></label>
+          <label class="field city-field"><span>Cidade</span><input id="cidade" required></label>
+          <label class="field uf-field"><span>UF</span><input id="uf" required maxlength="2"></label>
         </div>
       </section>
 
       <section>
         <h2>Representante legal <small>preenchimento manual</small></h2>
         <div class="form-grid representative">
-          <label class="field"><span>Nome completo</span><input id="representante" required></label>
-          <label class="field"><span>CPF</span><input id="cpf" required inputmode="numeric"></label>
-          <label class="field"><span>RG</span><input id="rg" required></label>
-          <label class="field"><span>Órgão expedidor</span><input id="orgaoExpedidor" required placeholder="Ex.: SSP/MS"></label>
-          <label class="field"><span>Cargo</span><input id="cargo" required></label>
-          <label class="field span-2"><span>E-mail</span><input id="email" type="email" required></label>
+          <label class="field representative-name"><span>Nome completo</span><input id="representante" required></label>
+          <label class="field representative-cpf"><span>CPF</span><input id="cpf" required inputmode="numeric"></label>
+          <label class="field representative-rg"><span>RG</span><input id="rg" required></label>
+          <label class="field representative-orgao"><span>Órgão expedidor</span><input id="orgaoExpedidor" required placeholder="Ex.: SSP/MS"></label>
+          <label class="field representative-role"><span>Cargo</span><input id="cargo" required></label>
+          <label class="field representative-email"><span>E-mail</span><input id="email" type="email" required autocomplete="email"></label>
         </div>
       </section>
 
-      <section>
-        <h2>Documento</h2>
-        <div class="form-grid document">
-          <label class="field"><span>Data do convênio</span><input id="data" type="date" required></label>
-        </div>
-      </section>
 
       <button class="mobile-generate" type="submit">Gerar PDF</button>
     </form>
@@ -113,6 +109,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js" crossorigin="anonymous"></script>
-  <script type="module" src="app.js?v=20260722-2"></script>
+  <script type="module" src="app.js?v=20260722-3"></script>
 </body>
 </html>
