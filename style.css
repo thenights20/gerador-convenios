@@ -319,3 +319,72 @@ h2{margin-bottom:10px}
     padding-bottom:10px;
   }
 }
+
+
+/* v6 - alinhamento do topo, data na coluna lateral e estabilidade CNPJ/CPF */
+@media(min-width:821px){
+  .form-heading{
+    min-height:38px;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .form-heading h1{
+    line-height:1.2;
+  }
+
+  /* Mantém o seletor no mesmo lugar mesmo quando o comprovante é ocultado no CPF. */
+  .top-tools .term-type,
+  .top-tools:has(#receiptSection[hidden]) .term-type{
+    grid-column:2;
+    width:100%;
+    max-width:none;
+    margin-left:0;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:center;
+  }
+  .top-tools:has(#receiptSection[hidden]){
+    grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);
+  }
+  .top-tools:has(#receiptSection[hidden]) .segmented-control{
+    width:100%;
+    min-width:0;
+    flex:initial;
+  }
+}
+
+.aside-date{
+  padding-bottom:12px;
+}
+.aside-date .date-field{
+  width:100%;
+  flex:initial;
+}
+.aside-date .date-field input{
+  height:42px;
+}
+
+@media(min-width:681px){
+  .preview-card{
+    padding-top:15px;
+  }
+  .aside-date{
+    padding-bottom:11px;
+  }
+  .aside-date .date-field input{
+    height:40px;
+  }
+}
+
+@media(max-width:820px){
+  .top-tools .term-type,
+  .top-tools:has(#receiptSection[hidden]) .term-type{
+    grid-column:1;
+    width:100%;
+    max-width:none;
+    margin-left:0;
+  }
+  .top-tools:has(#receiptSection[hidden]){
+    grid-template-columns:1fr;
+  }
+}
