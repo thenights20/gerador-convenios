@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#102a43">
   <title>Gerador de Convênios em PDF</title>
-  <link rel="stylesheet" href="style.css?v=20260718-13">
-  <link rel="stylesheet" href="adjustments.css?v=20260718-13">
+  <link rel="stylesheet" href="style.css?v=20260722-1">
+  <link rel="stylesheet" href="adjustments.css?v=20260722-1">
 </head>
 <body>
   <header class="topbar">
@@ -74,12 +74,6 @@
     </form>
 
     <aside class="preview-card">
-      <h2>Prévia do documento</h2>
-      <div class="paper" aria-label="Prévia simplificada">
-        <strong>CONVÊNIO</strong><span id="previewName">Nome da instituição</span><hr>
-        <b>1. PARTÍCIPES</b><p></p><p></p><b>2. OBJETO</b><p></p><p></p>
-        <b>3. OBRIGAÇÕES</b><p></p><p></p><b>4. VIGÊNCIA</b><p></p>
-      </div>
       <div class="completion">
         <div class="progress-head"><strong id="progressText">0% preenchido</strong><span id="progressCount">0/15</span></div>
         <div class="progress"><span id="progressBar"></span></div>
@@ -91,6 +85,16 @@
       </div>
       <button id="generateButton" class="primary" type="button" disabled>Gerar PDF</button>
       <button id="clearButton" class="secondary" type="button">Limpar formulário</button>
+
+      <div class="copy-data">
+        <div class="copy-data-head">
+          <strong>Dados para copiar</strong>
+          <button id="copyDataButton" type="button" class="copy-button">Copiar</button>
+        </div>
+        <textarea id="copyDataText" readonly aria-label="Dados preenchidos para copiar"></textarea>
+        <p id="copyStatus" class="copy-status" role="status"></p>
+      </div>
+
       <p id="finalStatus" class="status" role="status"></p>
       <p class="privacy">♢ Seus dados e o comprovante não são enviados para nenhum servidor</p>
     </aside>
@@ -98,6 +102,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js" crossorigin="anonymous"></script>
-  <script type="module" src="app.js?v=20260718-15"></script>
+  <script type="module" src="app.js?v=20260722-1"></script>
 </body>
 </html>

@@ -27,17 +27,33 @@ function normalizeLogradouro(value){
 
 function setValue(id,value){$(id).value=clean(value);$(id).dispatchEvent(new Event("input",{bubbles:true}))}
 function count(ids){return ids.filter(id=>$(id).value.trim()).length}
+function buildCopyText(){
+  const cnpj=$("cnpj").value.trim();
+  const cpf=$("cpf").value.trim();
+  return [
+    `Razão social: ${$("razaoSocial").value.trim()}`,
+    `CNPJ: ${cnpj}`,
+    `CNPJ (apenas números): ${digits(cnpj)}`,
+    `Representante legal: ${$("representante").value.trim()}`,
+    `CPF: ${cpf}`,
+    `CPF sem pontuação: ${digits(cpf)}`
+  ].join("\n");
+}
+function updateCopyText(){
+  $("copyDataText").value=buildCopyText();
+}
 function updateProgress(){
   const c=count(companyIds),p=count(personIds),d=$("data").value?1:0,total=c+p+d,percent=Math.round(total/15*100);
   $("progressText").textContent=total===15?"Dados obrigatórios preenchidos":`${percent}% preenchido`;
   $("progressCount").textContent=`${total}/15`;$("progressBar").style.width=`${percent}%`;
   $("companyCount").textContent=`${c}/8`;$("personCount").textContent=`${p}/6`;$("dateCount").textContent=`${d}/1`;
   $("companyCheck").textContent=c===8?"✓":"○";$("personCheck").textContent=p===6?"✓":"○";$("dateCheck").textContent=d?"✓":"○";
-  $("generateButton").disabled=total!==15;$("previewName").textContent=$("razaoSocial").value||"Nome da instituição";
+  $("generateButton").disabled=total!==15;
+  updateCopyText();
 }
 
 allIds.forEach(id=>$(id).addEventListener("input",e=>{
-  if(id==="cnpj")e.target.value=maskCnpj(e.target.value);if(id==="cpf")e.target.value=maskCpf(e.target.value);if(id==="cep")e.target.value=maskCep(e.target.value);if(id==="uf")e.target.value=e.target.value.toUpperCase().slice(0,2);if(id==="orgaoExpedidor")e.target.value=e.target.value.toUpperCase();e.target.classList.remove("invalid");updateProgress();
+  if(id==="cnpj")e.target.value=maskCnpj(e.target.value);if(id==="cpf")e.target.value=maskCpf(e.target.value);if(id==="cep")e.target.value=maskCep(e.target.value);if(id==="uf")e.target.value=e.target.value.toUpperCase().slice(0,2);if(id==="orgaoExpedidor")e.target.value=e.target.value.toUpperCase();if(id==="email")e.target.value=e.target.value.toLowerCase();e.target.classList.remove("invalid");updateProgress();
 }));
 
 function rowsFromItems(items){
@@ -140,9 +156,10 @@ async function generate(){
     const razao=$("razaoSocial").value.trim().toUpperCase(),complemento=$("complemento").value.trim();
     const estado=estados[$("uf").value.toUpperCase()]||`Estado de ${$("uf").value.toUpperCase()}`;
     const enderecoCompleto=`${$("endereco").value}, nº ${$("numero").value}${complemento?`, ${complemento}`:""}, ${$("bairro").value}, no município de ${$("cidade").value}, ${estado}, CEP ${$("cep").value}`;
-    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} ${$("orgaoExpedidor").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL "${$("email").value}"`.toUpperCase();
+    const qualificacao=`${$("representante").value}, PORTADOR DO RG Nº ${$("rg").value} ${$("orgaoExpedidor").value} E CPF Nº ${$("cpf").value}, ${$("cargo").value}, E-MAIL`.toUpperCase();
+    const email=$("email").value.trim().toLowerCase();
     const intro=[{text:"Termo de Convênio de Concessão de Estágio que entre si celebram a UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ e"},{text:razao,bold:true},{text:", visando à concessão de Estágio Supervisionado Curricular Obrigatório, nos termos da Lei 11.788/2008."}];
-    const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
+    const preambulo=[{text:"A UNINGÁ – CENTRO UNIVERSITÁRIO INGÁ, mantida pela UNIDADE DE ENSINO SUPERIOR INGÁ LTDA., pessoa jurídica de direito privado, inscrita no CNPJ sob N. 01.207.056/0001-84, com sede à Rodovia PR 317, N. 6114, Parque Industrial 200, na cidade de Maringá, Estado do Paraná, CEP 87035-510, doravante denominada UNINGÁ, neste ato representada pela Coordenação da Central de Estágios, Jaiane Cardoso Costa Tavares, inscrita no CPF Nº 121.804.459-46, portadora do RG Nº 14.523.783-1; e"},{text:razao,bold:true},{text:", inscrita no CNPJ sob N°"},{text:$("cnpj").value,bold:true},{text:", com sede à"},{text:enderecoCompleto.toUpperCase(),bold:true},{text:", neste ato representado por"},{text:qualificacao,bold:true},{text:` "${email}"`,bold:true},{text:", doravante denominado CONCEDENTE, celebram entre si o presente TERMO DE CONVÊNIO DE CONCESSÃO DE ESTÁGIO OBRIGATÓRIO, nos termos da Lei 11.788/2008 e demais normas aplicáveis, estipulando sob cláusulas seguintes:"}];
 
     const page1=pages[0];
     page1.drawRectangle({x:270,y:515,width:255,height:120,color:white});
@@ -165,4 +182,22 @@ async function generate(){
     $("finalStatus").className="status success";$("finalStatus").textContent="Documento oficial de 6 páginas gerado com sucesso.";
   }catch(error){$("finalStatus").className="status error";$("finalStatus").textContent=`Não foi possível gerar o PDF: ${error.message}`}
 }
-$("form").addEventListener("submit",e=>{e.preventDefault();generate()});$("generateButton").addEventListener("click",generate);$("clearButton").addEventListener("click",()=>{if(confirm("Deseja limpar todos os dados?")){$("form").reset();$("data").value=new Date().toISOString().slice(0,10);$("importStatus").textContent="";$("finalStatus").textContent="";updateProgress()}});updateProgress();
+$("form").addEventListener("submit",e=>{e.preventDefault();generate()});
+$("generateButton").addEventListener("click",generate);
+$("copyDataButton").addEventListener("click",async()=>{
+  const text=$("copyDataText").value;
+  try{
+    await navigator.clipboard.writeText(text);
+    $("copyStatus").className="copy-status success";
+    $("copyStatus").textContent="Dados copiados.";
+  }catch{
+    $("copyDataText").select();
+    const copied=document.execCommand("copy");
+    $("copyStatus").className=`copy-status ${copied?"success":"error"}`;
+    $("copyStatus").textContent=copied?"Dados copiados.":"Não foi possível copiar automaticamente.";
+    window.getSelection()?.removeAllRanges();
+  }
+  setTimeout(()=>{$("copyStatus").textContent=""},2000);
+});
+$("clearButton").addEventListener("click",()=>{if(confirm("Deseja limpar todos os dados?")){$("form").reset();$("data").value=new Date().toISOString().slice(0,10);$("importStatus").textContent="";$("finalStatus").textContent="";$("copyStatus").textContent="";updateProgress()}});
+updateProgress();
