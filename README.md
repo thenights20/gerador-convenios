@@ -18,6 +18,10 @@ A linha da concedente usa a mesma altura visual da linha da contratante; toda a 
 
 O alinhamento vertical da linha da concedente foi calibrado diretamente contra a linha da contratante no PDF renderizado.
 
+## Duração do convênio
+
+O prazo permanece indeterminado por padrão. Na seção **Documento**, a opção **Definir duração do convênio** permite informar de 1 a 10 anos. Quando ativada, a Cláusula 8ª é substituída no PDF por um prazo determinado, incluindo o número por extenso e a contagem a partir da assinatura. Quando desativada, a redação original de prazo indeterminado é preservada.
+
 O campo de complemento é importado quando informado no comprovante e inserido após o número. Valores com asteriscos são tratados como complemento vazio. O tipo de logradouro abreviado como `R` é convertido para `RUA`.
 
 ## Publicação rápida
