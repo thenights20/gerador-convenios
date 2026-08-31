@@ -225,7 +225,17 @@ async function generate(){
 
     pdf.setTitle("Termo de Convênio de Concessão de Estágio Obrigatório");pdf.setAuthor("UNINGÁ – Centro Universitário Ingá");pdf.setCreator("Gerador de Convênios em PDF");
     const bytes=await pdf.save(),blob=new Blob([bytes],{type:"application/pdf"}),url=URL.createObjectURL(blob),link=document.createElement("a");
-    const name=razao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");link.href=url;link.download=`convenio-${name}.pdf`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    const name=razao.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+    const nomeArquivo=`convenio-${name}.pdf`;link.href=url;link.download=nomeArquivo;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    try{
+      let binario="";const bloco=0x8000;for(let i=0;i<bytes.length;i+=bloco)binario+=String.fromCharCode(...bytes.subarray(i,Math.min(i+bloco,bytes.length)));
+      const pdfBase64=btoa(binario);
+      if(window.parent&&window.parent!==window)window.parent.postMessage({type:"CRM_CONVENIO_GERADO",payload:{
+        razaoSocial:$("razaoSocial").value.trim(),cnpj:$("cnpj").value.trim(),representanteLegal:$("representante").value.trim(),cidade:$("cidade").value.trim(),
+        dataPreenchimento:$("data").value,duracaoAnos:definirDuracao.checked?Number(duracaoAnos.value||0):0,prazoIndeterminado:!definirDuracao.checked,
+        arquivoNome:nomeArquivo,pdfBase64:pdfBase64
+      }},"*");
+    }catch(bridgeError){console.warn("CRM: não foi possível enviar o termo gerado ao histórico.",bridgeError)}
     $("finalStatus").className="status success";$("finalStatus").textContent="Documento oficial de 6 páginas gerado com sucesso.";
   }catch(error){$("finalStatus").className="status error";$("finalStatus").textContent=`Não foi possível gerar o PDF: ${error.message}`}
 }
